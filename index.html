@@ -299,6 +299,7 @@ div.innerHTML = `
 </div>
 
 <div class="row">
+<button class="action" onclick="editItem(${index})">Edit</button>
 <button class="action" onclick="duplicateItem(${index})">Duplicate</button>
 <button class="action" onclick="deleteItem(${index})">Delete</button>
 </div>
@@ -342,6 +343,38 @@ if(arr.length > 0){
 const copy = JSON.parse(JSON.stringify(arr[0]));
 arr.push(copy);
 }
+
+document.getElementById("editor").value = JSON.stringify(arr,null,2);
+
+renderItems();
+
+}catch(e){
+console.log(e);
+}
+}
+
+function editItem(index){
+
+try{
+
+const arr = JSON.parse(document.getElementById("editor").value);
+
+const item = arr[index];
+
+const newName = prompt("Edit Name", item.name || "");
+if(newName === null) return;
+
+const newId = prompt("Edit ID", item.id || "");
+if(newId === null) return;
+
+const newImage = prompt("Edit Image URL", item.image || "");
+if(newImage === null) return;
+
+item.name = newName;
+item.id = newId;
+item.image = newImage;
+
+arr[index] = item;
 
 document.getElementById("editor").value = JSON.stringify(arr,null,2);
 
