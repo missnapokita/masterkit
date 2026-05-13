@@ -393,7 +393,16 @@ const arr = JSON.parse(document.getElementById("editor").value);
 
 const itemText = JSON.stringify(arr[index], null, 2);
 
-const edited = prompt("Edit JSON Item", itemText);
+const edited = window.prompt(
+"Edit JSON Item
+
+Example:
+{
+  \"hero\": \"Saber\",
+  \"image\": \"https://...\"
+}",
+itemText
+);
 
 if(edited === null) return;
 
