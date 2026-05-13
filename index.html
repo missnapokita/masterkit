@@ -146,7 +146,8 @@ color:#bdbdbd;
 <input type="text" id="path" value="data.json">
 
 <button onclick="loadJson()">Load JSON</button>
-<div class="status" id="status">Ready</div>
+<div class="status" id="status">✓ All Changes Saved</div>
+<div class="status" id="changes" style="color:#ffcc80;margin-top:6px;">No Pending Changes</div>
 </div>
 
 <div class="card">
@@ -155,7 +156,8 @@ color:#bdbdbd;
 
 <div class="row">
 <button class="action" onclick="formatJson()">Format</button>
-<button class="action" onclick="saveJson()">Save</button>
+<button class="action" onclick="saveDraft()">Save Draft</button>
+<button class="action" onclick="commitChanges()">Commit Changes</button>
 <button class="action" onclick="duplicateFirst()">Duplicate First</button>
 </div>
 </div>
@@ -172,9 +174,24 @@ color:#bdbdbd;
 <script>
 
 let sha = "";
+let hasChanges = false;
 
 function setStatus(text){
 document.getElementById("status").innerText = text;
+}
+
+function setChanges(state){
+const changes = document.getElementById("changes");
+
+hasChanges = state;
+
+if(state){
+changes.innerText = "● Unsaved Changes";
+changes.style.color = "#ff9800";
+}else{
+changes.innerText = "✓ All Changes Saved";
+changes.style.color = "#4caf50";
+}
 }
 
 function getApi(){
@@ -205,9 +222,12 @@ sha = data.sha;
 
 const decoded = atob(data.content.replace(/\n/g,""));
 
-document.getElementById("editor").value = decoded;
+const draft = localStorage.getItem("json_draft");
+
+document.getElementById("editor").value = draft || decoded;
 
 renderItems();
+setChanges(true);
 
 setStatus("JSON Loaded Successfully");
 
@@ -217,7 +237,15 @@ console.log(e);
 }
 }
 
-async function saveJson(){
+function saveDraft(){
+
+localStorage.setItem("json_draft", document.getElementById("editor").value);
+
+setStatus("Draft Saved Locally");
+setChanges(true);
+}
+
+async function commitChanges(){
 
 try{
 
@@ -243,7 +271,8 @@ const data = await response.json();
 
 sha = data.content.sha;
 
-setStatus("JSON Saved Successfully");
+setStatus("Changes Committed to GitHub");
+setChanges(false);
 
 }catch(e){
 setStatus("Save Failed");
@@ -262,6 +291,7 @@ const obj = JSON.parse(editor.value);
 editor.value = JSON.stringify(obj,null,2);
 
 renderItems();
+setChanges(true);
 
 }catch(e){
 alert("Invalid JSON");
@@ -327,6 +357,7 @@ arr.splice(index+1,0,copy);
 document.getElementById("editor").value = JSON.stringify(arr,null,2);
 
 renderItems();
+setChanges(true);
 
 }catch(e){
 console.log(e);
@@ -347,6 +378,7 @@ arr.push(copy);
 document.getElementById("editor").value = JSON.stringify(arr,null,2);
 
 renderItems();
+setChanges(true);
 
 }catch(e){
 console.log(e);
@@ -359,26 +391,25 @@ try{
 
 const arr = JSON.parse(document.getElementById("editor").value);
 
-const item = arr[index];
+const itemText = JSON.stringify(arr[index], null, 2);
 
-const newName = prompt("Edit Name", item.name || "");
-if(newName === null) return;
+const edited = prompt("Edit JSON Item", itemText);
 
-const newId = prompt("Edit ID", item.id || "");
-if(newId === null) return;
+if(edited === null) return;
 
-const newImage = prompt("Edit Image URL", item.image || "");
-if(newImage === null) return;
+try{
 
-item.name = newName;
-item.id = newId;
-item.image = newImage;
-
-arr[index] = item;
+arr[index] = JSON.parse(edited);
 
 document.getElementById("editor").value = JSON.stringify(arr,null,2);
 
 renderItems();
+setChanges(true);
+setStatus("Item Updated Successfully");
+
+}catch(e){
+alert("Invalid JSON Format");
+}
 
 }catch(e){
 console.log(e);
@@ -396,6 +427,7 @@ arr.splice(index,1);
 document.getElementById("editor").value = JSON.stringify(arr,null,2);
 
 renderItems();
+setChanges(true);
 
 }catch(e){
 console.log(e);
@@ -417,6 +449,7 @@ image:"https://via.placeholder.com/150"
 document.getElementById("editor").value = JSON.stringify(arr,null,2);
 
 renderItems();
+setChanges(true);
 
 }catch(e){
 console.log(e);
