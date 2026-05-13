@@ -338,14 +338,14 @@ JSON.parse(document.getElementById("editor").value);
 const keyword =
 document.getElementById("search").value.toLowerCase();
 
-arr.sort((a,b)=>{
+const sortedArr = [...arr].sort((a,b)=>{
 
 const textA =
-(a.hero || a.name || a.title || "")
+(a.hero || a.hero_name || a.name || a.title || "")
 .toLowerCase();
 
 const textB =
-(b.hero || b.name || b.title || "")
+(b.hero || b.hero_name || b.name || b.title || "")
 .toLowerCase();
 
 if(textA < textB) return -1;
@@ -355,11 +355,13 @@ return 0;
 
 });
 
-arr.forEach((item,index)=>{
+sortedArr.forEach((item)=>{
 
 if(keyword &&
 !(JSON.stringify(item).toLowerCase().includes(keyword)))
 return;
+
+const index = arr.indexOf(item);
 
 const div = document.createElement("div");
 
@@ -383,7 +385,7 @@ item.skin_name ||
 item.description ||
 item.id ||
 "No Description";
-  
+
 div.innerHTML = `
 
 <div style="display:flex;align-items:center;gap:14px;">
