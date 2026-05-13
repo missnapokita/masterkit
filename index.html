@@ -316,15 +316,19 @@ if(keyword && !(JSON.stringify(item).toLowerCase().includes(keyword))) return;
 const div = document.createElement("div");
 div.className = "item";
 
-const title = item.name || `Item ${index+1}`;
+const title = item.hero || item.name || item.title || `Item ${index+1}`;
+
+const image = item.image || "https://via.placeholder.com/70";
+
+const subtitle = item.upgradable_skin || item.id || "No Description";
 
 div.innerHTML = `
 <div style="display:flex;align-items:center;gap:14px;">
-<img src="${item.image || 'https://via.placeholder.com/70'}" style="width:70px;height:70px;border-radius:18px;object-fit:cover;border:1px solid #333;">
+<img src="${image}" style="width:70px;height:70px;border-radius:18px;object-fit:cover;border:1px solid #333;">
 
 <div>
 <div class="item-title">${title}</div>
-<div style="color:#bdbdbd;font-size:13px;">ID: ${item.id || 'none'}</div>
+<div style="color:#bdbdbd;font-size:13px;">${subtitle}</div>
 </div>
 </div>
 
