@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JsonHub Editor</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Poppins,sans-serif;
+}
+
+body{
+background:#0f0f0f;
+color:white;
+padding:20px;
+}
+
+.header{
+display:flex;
+align-items:center;
+justify-content:space-between;
+margin-bottom:20px;
+}
+
+.title{
+font-size:28px;
+font-weight:600;
+}
+
+.card{
+background:#1a1a1a;
+border:1px solid #2a2a2a;
+border-radius:24px;
+padding:18px;
+margin-bottom:15px;
+box-shadow:0 8px 20px rgba(0,0,0,0.3);
+}
+
+input, textarea{
+width:100%;
+background:#111;
+border:1px solid #333;
+color:white;
+padding:14px;
+border-radius:16px;
+outline:none;
+font-size:14px;
+margin-top:10px;
+}
+
+textarea{
+height:140px;
+resize:none;
+}
+
+button{
+border:none;
+outline:none;
+background:white;
+color:black;
+padding:13px 18px;
+border-radius:16px;
+font-weight:600;
+margin-top:12px;
+cursor:pointer;
+transition:0.2s;
+}
+
+button:hover{
+transform:scale(0.98);
+}
+
+.item{
+background:#151515;
+border:1px solid #2d2d2d;
+padding:15px;
+border-radius:20px;
+margin-top:12px;
+}
+
+.item-title{
+font-size:17px;
+font-weight:600;
+margin-bottom:10px;
+}
+
+.row{
+display:flex;
+gap:10px;
+flex-wrap:wrap;
+}
+
+.action{
+flex:1;
+min-width:100px;
+}
+
+.fab{
+position:fixed;
+right:20px;
+bottom:20px;
+width:65px;
+height:65px;
+border-radius:100%;
+font-size:28px;
+background:white;
+color:black;
+display:flex;
+align-items:center;
+justify-content:center;
+box-shadow:0 10px 30px rgba(0,0,0,0.4);
+}
+
+.status{
+margin-top:10px;
+font-size:13px;
+color:#bdbdbd;
+}
+
+</style>
+</head>
+<body>
+
+<div class="header">
+<div class="title">JsonHub Editor</div>
+</div>
+
+<div class="card">
+<div>GitHub Token</div>
+<input type="password" id="token" placeholder="GitHub Personal Access Token">
+
+<div style="margin-top:15px;">GitHub Username</div>
+<input type="text" id="owner" placeholder="username">
+
+<div style="margin-top:15px;">Repository</div>
+<input type="text" id="repo" placeholder="repo-name">
+
+<div style="margin-top:15px;">JSON File Path</div>
+<input type="text" id="path" value="data.json">
+
+<button onclick="loadJson()">Load JSON</button>
+<div class="status" id="status">Ready</div>
+</div>
+
+<div class="card">
+<div>Raw JSON Editor</div>
+<textarea id="editor"></textarea>
+
+<div class="row">
+<button class="action" onclick="formatJson()">Format</button>
+<button class="action" onclick="saveJson()">Save</button>
+<button class="action" onclick="duplicateFirst()">Duplicate First</button>
+</div>
+</div>
+
+<div class="card">
+<div style="font-size:18px;font-weight:600;">Preview Items</div>
+<div id="list"></div>
+</div>
+
+<div class="fab" onclick="addItem()">+</div>
+
+<script>
+
+let sha = "";
+
+function setStatus(text){
+document.getElementById("status").innerText = text;
+}
+
+function getApi(){
+const owner = document.getElementById("owner").value;
+const repo = document.getElementById("repo").value;
+const path = document.getElementById("path").value;
+
+return `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
+}
+
+async function loadJson(){
+
+try{
+
+setStatus("Loading JSON...");
+
+const token = document.getElementById("token").value;
+
+const response = await fetch(getApi(), {
+headers:{
+Authorization:`token ${token}`
+}
+});
+
+const data = await response.json();
+
+sha = data.sha;
+
+const decoded = atob(data.content.replace(/\n/g,""));
+
+document.getElementById("editor").value = decoded;
+
+renderItems();
+
+setStatus("JSON Loaded Successfully");
+
+}catch(e){
+setStatus("Error Loading JSON");
+console.log(e);
+}
+}
+
+async function saveJson(){
+
+try{
+
+setStatus("Saving JSON...");
+
+const token = document.getElementById("token").value;
+const content = document.getElementById("editor").value;
+
+const response = await fetch(getApi(), {
+method:"PUT",
+headers:{
+Authorization:`token ${token}`,
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+message:"Updated JSON from JsonHub Editor",
+content:btoa(unescape(encodeURIComponent(content))),
+sha:sha
+})
+});
+
+const data = await response.json();
+
+sha = data.content.sha;
+
+setStatus("JSON Saved Successfully");
+
+}catch(e){
+setStatus("Save Failed");
+console.log(e);
+}
+}
+
+function formatJson(){
+
+try{
+
+const editor = document.getElementById("editor");
+
+const obj = JSON.parse(editor.value);
+
+editor.value = JSON.stringify(obj,null,2);
+
+renderItems();
+
+}catch(e){
+alert("Invalid JSON");
+}
+}
+
+function renderItems(){
+
+const list = document.getElementById("list");
+list.innerHTML = "";
+
+try{
+
+const arr = JSON.parse(document.getElementById("editor").value);
+
+arr.forEach((item,index)=>{
+
+const div = document.createElement("div");
+div.className = "item";
+
+const title = item.name || `Item ${index+1}`;
+
+div.innerHTML = `
+<div class="item-title">${title}</div>
+<div>ID: ${item.id || 'none'}</div>
+
+<div class="row">
+<button class="action" onclick="duplicateItem(${index})">Duplicate</button>
+<button class="action" onclick="deleteItem(${index})">Delete</button>
+</div>
+`;
+
+list.appendChild(div);
+
+});
+
+}catch(e){
+console.log(e);
+}
+}
+
+function duplicateItem(index){
+
+try{
+
+const arr = JSON.parse(document.getElementById("editor").value);
+
+const copy = JSON.parse(JSON.stringify(arr[index]));
+
+arr.splice(index+1,0,copy);
+
+document.getElementById("editor").value = JSON.stringify(arr,null,2);
+
+renderItems();
+
+}catch(e){
+console.log(e);
+}
+}
+
+function duplicateFirst(){
+
+try{
+
+const arr = JSON.parse(document.getElementById("editor").value);
+
+if(arr.length > 0){
+const copy = JSON.parse(JSON.stringify(arr[0]));
+arr.push(copy);
+}
+
+document.getElementById("editor").value = JSON.stringify(arr,null,2);
+
+renderItems();
+
+}catch(e){
+console.log(e);
+}
+}
+
+function deleteItem(index){
+
+try{
+
+const arr = JSON.parse(document.getElementById("editor").value);
+
+arr.splice(index,1);
+
+document.getElementById("editor").value = JSON.stringify(arr,null,2);
+
+renderItems();
+
+}catch(e){
+console.log(e);
+}
+}
+
+function addItem(){
+
+try{
+
+const arr = JSON.parse(document.getElementById("editor").value || "[]");
+
+arr.push({
+name:"New Item",
+id:Date.now().toString()
+});
+
+document.getElementById("editor").value = JSON.stringify(arr,null,2);
+
+renderItems();
+
+}catch(e){
+console.log(e);
+}
+}
+
+</script>
+
+</body>
+</html>
