@@ -162,6 +162,8 @@ color:#bdbdbd;
 
 <div class="card">
 <div style="font-size:18px;font-weight:600;">Preview Items</div>
+
+<input type="text" id="search" placeholder="Search items..." oninput="renderItems()" style="margin-top:15px;">
 <div id="list"></div>
 </div>
 
@@ -275,7 +277,11 @@ try{
 
 const arr = JSON.parse(document.getElementById("editor").value);
 
+const keyword = document.getElementById("search") ? document.getElementById("search").value.toLowerCase() : "";
+
 arr.forEach((item,index)=>{
+
+if(keyword && !(JSON.stringify(item).toLowerCase().includes(keyword))) return;
 
 const div = document.createElement("div");
 div.className = "item";
@@ -283,8 +289,14 @@ div.className = "item";
 const title = item.name || `Item ${index+1}`;
 
 div.innerHTML = `
+<div style="display:flex;align-items:center;gap:14px;">
+<img src="${item.image || 'https://via.placeholder.com/70'}" style="width:70px;height:70px;border-radius:18px;object-fit:cover;border:1px solid #333;">
+
+<div>
 <div class="item-title">${title}</div>
-<div>ID: ${item.id || 'none'}</div>
+<div style="color:#bdbdbd;font-size:13px;">ID: ${item.id || 'none'}</div>
+</div>
+</div>
 
 <div class="row">
 <button class="action" onclick="duplicateItem(${index})">Duplicate</button>
@@ -365,7 +377,8 @@ const arr = JSON.parse(document.getElementById("editor").value || "[]");
 
 arr.push({
 name:"New Item",
-id:Date.now().toString()
+id:Date.now().toString(),
+image:"https://via.placeholder.com/150"
 });
 
 document.getElementById("editor").value = JSON.stringify(arr,null,2);
