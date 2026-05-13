@@ -350,6 +350,7 @@ div.className = "item";
 
 const title =
 item.hero ||
+item.hero_name ||  
 item.name ||
 item.title ||
 `Item ${index+1}`;
@@ -361,6 +362,7 @@ item.image_url ||
 
 const subtitle =
 item.upgradable_skin ||
+item.skin_name ||
 item.id ||
 item.description ||
 "No Description";
