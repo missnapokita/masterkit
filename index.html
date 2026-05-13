@@ -22,25 +22,12 @@ color:white;
 padding:20px;
 }
 
-.header{
-display:flex;
-align-items:center;
-justify-content:space-between;
-margin-bottom:20px;
-}
-
-.title{
-font-size:28px;
-font-weight:600;
-}
-
 .card{
 background:#1a1a1a;
 border:1px solid #2a2a2a;
 border-radius:24px;
 padding:18px;
 margin-bottom:15px;
-box-shadow:0 8px 20px rgba(0,0,0,0.3);
 }
 
 input, textarea{
@@ -70,11 +57,17 @@ border-radius:16px;
 font-weight:600;
 margin-top:12px;
 cursor:pointer;
-transition:0.2s;
 }
 
-button:hover{
-transform:scale(0.98);
+.row{
+display:flex;
+gap:10px;
+flex-wrap:wrap;
+}
+
+.action{
+flex:1;
+min-width:100px;
 }
 
 .item{
@@ -88,18 +81,13 @@ margin-top:12px;
 .item-title{
 font-size:17px;
 font-weight:600;
-margin-bottom:10px;
+margin-bottom:8px;
 }
 
-.row{
-display:flex;
-gap:10px;
-flex-wrap:wrap;
-}
-
-.action{
-flex:1;
-min-width:100px;
+.status{
+margin-top:10px;
+font-size:13px;
+color:#bdbdbd;
 }
 
 .fab{
@@ -115,75 +103,95 @@ color:black;
 display:flex;
 align-items:center;
 justify-content:center;
-box-shadow:0 10px 30px rgba(0,0,0,0.4);
-}
-
-.status{
-margin-top:10px;
-font-size:13px;
-color:#bdbdbd;
+cursor:pointer;
 }
 
 </style>
 </head>
 <body>
 
-<div class="header">
-<div class="title">JsonHub Editor</div>
-</div>
-
 <div class="card">
+
 <div>GitHub Token</div>
-<input type="password" id="token" placeholder="GitHub Personal Access Token">
+<input type="password" id="token">
 
 <div style="margin-top:15px;">GitHub Username</div>
-<input type="text" id="owner" placeholder="username">
+<input type="text" id="owner">
 
 <div style="margin-top:15px;">Repository</div>
-<input type="text" id="repo" placeholder="repo-name">
+<input type="text" id="repo">
 
 <div style="margin-top:15px;">JSON File Path</div>
 <input type="text" id="path" value="data.json">
 
 <button onclick="loadJson()">Load JSON</button>
-<div class="status" id="status">✓ All Changes Saved</div>
-<div class="status" id="changes" style="color:#ffcc80;margin-top:6px;">No Pending Changes</div>
+
+<div class="status" id="status">
+✓ All Changes Saved
+</div>
+
+<div class="status" id="changes">
+No Pending Changes
+</div>
+
 </div>
 
 <div class="card">
+
 <div>Raw JSON Editor</div>
+
 <textarea id="editor"></textarea>
 
 <div class="row">
-<button class="action" onclick="formatJson()">Format</button>
-<button class="action" onclick="saveDraft()">Save Draft</button>
-<button class="action" onclick="commitChanges()">Commit Changes</button>
-<button class="action" onclick="duplicateFirst()">Duplicate First</button>
+
+<button class="action" onclick="formatJson()">
+Format
+</button>
+
+<button class="action" onclick="saveDraft()">
+Save Draft
+</button>
+
+<button class="action" onclick="commitChanges()">
+Commit Changes
+</button>
+
 </div>
+
 </div>
 
 <div class="card">
-<div style="font-size:18px;font-weight:600;">Preview Items</div>
 
-<input type="text" id="search" placeholder="Search items..." oninput="renderItems()" style="margin-top:15px;">
-<div id="list"></div>
+<div style="font-size:18px;font-weight:600;">
+Preview Items
 </div>
 
-<div class="fab" onclick="addItem()">+</div>
+<input
+type="text"
+id="search"
+placeholder="Search items..."
+oninput="renderItems()"
+>
+
+<div id="list"></div>
+
+</div>
+
+<div class="fab" onclick="addItem()">
++
+</div>
 
 <script>
 
 let sha = "";
-let hasChanges = false;
 
 function setStatus(text){
 document.getElementById("status").innerText = text;
 }
 
 function setChanges(state){
-const changes = document.getElementById("changes");
 
-hasChanges = state;
+const changes = document.getElementById("changes");
 
 if(state){
 changes.innerText = "● Unsaved Changes";
@@ -192,14 +200,17 @@ changes.style.color = "#ff9800";
 changes.innerText = "✓ All Changes Saved";
 changes.style.color = "#4caf50";
 }
+
 }
 
 function getApi(){
+
 const owner = document.getElementById("owner").value;
 const repo = document.getElementById("repo").value;
 const path = document.getElementById("path").value;
 
 return `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
+
 }
 
 async function loadJson(){
@@ -210,7 +221,7 @@ setStatus("Loading JSON...");
 
 const token = document.getElementById("token").value;
 
-const response = await fetch(getApi(), {
+const response = await fetch(getApi(),{
 headers:{
 Authorization:`token ${token}`
 }
@@ -222,27 +233,31 @@ sha = data.sha;
 
 const decoded = atob(data.content.replace(/\n/g,""));
 
-const draft = localStorage.getItem("json_draft");
-
-document.getElementById("editor").value = draft || decoded;
+document.getElementById("editor").value = decoded;
 
 renderItems();
-setChanges(true);
 
 setStatus("JSON Loaded Successfully");
 
 }catch(e){
+
 setStatus("Error Loading JSON");
 console.log(e);
+
 }
+
 }
 
 function saveDraft(){
 
-localStorage.setItem("json_draft", document.getElementById("editor").value);
+localStorage.setItem(
+"json_draft",
+document.getElementById("editor").value
+);
 
-setStatus("Draft Saved Locally");
+setStatus("Draft Saved");
 setChanges(true);
+
 }
 
 async function commitChanges(){
@@ -252,32 +267,41 @@ try{
 setStatus("Saving JSON...");
 
 const token = document.getElementById("token").value;
-const content = document.getElementById("editor").value;
 
-const response = await fetch(getApi(), {
+const content =
+document.getElementById("editor").value;
+
+const response = await fetch(getApi(),{
+
 method:"PUT",
+
 headers:{
 Authorization:`token ${token}`,
 "Content-Type":"application/json"
 },
+
 body:JSON.stringify({
-message:"Updated JSON from JsonHub Editor",
+message:"Updated JSON",
 content:btoa(unescape(encodeURIComponent(content))),
 sha:sha
 })
+
 });
 
 const data = await response.json();
 
 sha = data.content.sha;
 
-setStatus("Changes Committed to GitHub");
+setStatus("Changes Committed");
 setChanges(false);
 
 }catch(e){
+
 setStatus("Save Failed");
 console.log(e);
+
 }
+
 }
 
 function formatJson(){
@@ -291,52 +315,101 @@ const obj = JSON.parse(editor.value);
 editor.value = JSON.stringify(obj,null,2);
 
 renderItems();
-setChanges(true);
 
 }catch(e){
+
 alert("Invalid JSON");
+
 }
+
 }
 
 function renderItems(){
 
 const list = document.getElementById("list");
+
 list.innerHTML = "";
 
 try{
 
-const arr = JSON.parse(document.getElementById("editor").value);
+const arr =
+JSON.parse(document.getElementById("editor").value);
 
-const keyword = document.getElementById("search") ? document.getElementById("search").value.toLowerCase() : "";
+const keyword =
+document.getElementById("search").value.toLowerCase();
 
 arr.forEach((item,index)=>{
 
-if(keyword && !(JSON.stringify(item).toLowerCase().includes(keyword))) return;
+if(keyword &&
+!(JSON.stringify(item).toLowerCase().includes(keyword)))
+return;
 
 const div = document.createElement("div");
+
 div.className = "item";
 
-const title = item.hero || item.name || item.title || `Item ${index+1}`;
+const title =
+item.hero ||
+item.name ||
+item.title ||
+`Item ${index+1}`;
 
-const image = item.image || item.image_url || "https://via.placeholder.com/70";
+const image =
+item.image ||
+item.image_url ||
+"https://via.placeholder.com/70";
 
-const subtitle = item.upgradable_skin || item.id || "No Description";
+const subtitle =
+item.upgradable_skin ||
+item.id ||
+item.description ||
+"No Description";
 
 div.innerHTML = `
+
 <div style="display:flex;align-items:center;gap:14px;">
-<img src="${image}" style="width:70px;height:70px;border-radius:18px;object-fit:cover;border:1px solid #333;">
+
+<img
+src="${image}"
+onerror="this.src='https://via.placeholder.com/70';"
+style="
+width:70px;
+height:70px;
+border-radius:18px;
+object-fit:cover;
+border:1px solid #333;
+">
 
 <div>
-<div class="item-title">${title}</div>
-<div style="color:#bdbdbd;font-size:13px;">${subtitle}</div>
+
+<div class="item-title">
+${title}
 </div>
+
+<div style="color:#bdbdbd;font-size:13px;">
+${subtitle}
+</div>
+
+</div>
+
 </div>
 
 <div class="row">
-<button class="action" onclick="editItem(${index})">Edit</button>
-<button class="action" onclick="duplicateItem(${index})">Duplicate</button>
-<button class="action" onclick="deleteItem(${index})">Delete</button>
+
+<button class="action" onclick="editItem(${index})">
+Edit
+</button>
+
+<button class="action" onclick="duplicateItem(${index})">
+Duplicate
+</button>
+
+<button class="action" onclick="deleteItem(${index})">
+Delete
+</button>
+
 </div>
+
 `;
 
 list.appendChild(div);
@@ -344,129 +417,127 @@ list.appendChild(div);
 });
 
 }catch(e){
+
 console.log(e);
+
 }
+
 }
 
 function duplicateItem(index){
 
 try{
 
-const arr = JSON.parse(document.getElementById("editor").value);
+const arr =
+JSON.parse(document.getElementById("editor").value);
 
-const copy = JSON.parse(JSON.stringify(arr[index]));
+const copy =
+JSON.parse(JSON.stringify(arr[index]));
 
 arr.splice(index+1,0,copy);
 
-document.getElementById("editor").value = JSON.stringify(arr,null,2);
+document.getElementById("editor").value =
+JSON.stringify(arr,null,2);
 
 renderItems();
+
 setChanges(true);
 
 }catch(e){
+
 console.log(e);
-}
-}
 
-function duplicateFirst(){
-
-try{
-
-const arr = JSON.parse(document.getElementById("editor").value);
-
-if(arr.length > 0){
-const copy = JSON.parse(JSON.stringify(arr[0]));
-arr.push(copy);
 }
 
-document.getElementById("editor").value = JSON.stringify(arr,null,2);
-
-renderItems();
-setChanges(true);
-
-}catch(e){
-console.log(e);
-}
 }
 
 function editItem(index){
 
 try{
 
-const arr = JSON.parse(document.getElementById("editor").value);
+const arr =
+JSON.parse(document.getElementById("editor").value);
 
-const itemText = JSON.stringify(arr[index], null, 2);
+const itemText =
+JSON.stringify(arr[index],null,2);
 
 const edited = prompt(
-`Edit JSON Item
-
-Example:
-{
-  "hero": "Saber",
-  "image": "https://..."
-}`,
+"Edit JSON Item",
 itemText
 );
 
 if(edited === null) return;
 
-try{
-
 arr[index] = JSON.parse(edited);
 
-document.getElementById("editor").value = JSON.stringify(arr,null,2);
+document.getElementById("editor").value =
+JSON.stringify(arr,null,2);
 
 renderItems();
+
 setChanges(true);
-setStatus("Item Updated Successfully");
+
+setStatus("Item Updated");
 
 }catch(e){
-alert("Invalid JSON Format");
+
+alert("Invalid JSON");
+
 }
 
-}catch(e){
-console.log(e);
-}
 }
 
 function deleteItem(index){
 
 try{
 
-const arr = JSON.parse(document.getElementById("editor").value);
+const arr =
+JSON.parse(document.getElementById("editor").value);
 
 arr.splice(index,1);
 
-document.getElementById("editor").value = JSON.stringify(arr,null,2);
+document.getElementById("editor").value =
+JSON.stringify(arr,null,2);
 
 renderItems();
+
 setChanges(true);
 
 }catch(e){
+
 console.log(e);
+
 }
+
 }
 
 function addItem(){
 
 try{
 
-const arr = JSON.parse(document.getElementById("editor").value || "[]");
+const arr =
+JSON.parse(document.getElementById("editor").value || "[]");
 
 arr.push({
-name:"New Item",
-id:Date.now().toString(),
-image:"https://via.placeholder.com/150"
+hero:"New Hero",
+upgradable_skin:"New Skin",
+image:"",
+script:""
 });
 
-document.getElementById("editor").value = JSON.stringify(arr,null,2);
+document.getElementById("editor").value =
+JSON.stringify(arr,null,2);
 
 renderItems();
+
 setChanges(true);
 
 }catch(e){
+
 console.log(e);
+
 }
+
 }
 
 </script>
