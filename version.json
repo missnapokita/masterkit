@@ -1,0 +1,7 @@
+{
+  "version_code": 2,
+  "title": "New Update Available",
+  "message": "May bagong features at mas mabilis na app!",
+  "update_url": "https://yourwebsite.com/app.apk",
+  "force_update": false
+}
