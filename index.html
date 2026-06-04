@@ -338,41 +338,8 @@ JSON.parse(document.getElementById("editor").value);
 const keyword =
 document.getElementById("search").value.toLowerCase();
 
-const sortedArr = arr.map((item,index)=>({
-item:item,
-originalIndex:index
-}));
-
-sortedArr.sort((a,b)=>{
-
-const textA =
-(a.item.hero ||
-a.item.hero_name ||
-a.item.name ||
-a.item.title ||
-"")
-.toLowerCase();
-
-const textB =
-(b.item.hero ||
-b.item.hero_name ||
-b.item.name ||
-b.item.title ||
-"")
-.toLowerCase();
-
-if(textA < textB) return -1;
-if(textA > textB) return 1;
-
-return 0;
-
-});
-
-sortedArr.forEach((data)=>{
-
-const item = data.item;
-const index = data.originalIndex;
-
+arr.forEach((item,index)=>{
+    
 if(
 keyword &&
 !(JSON.stringify(item).toLowerCase().includes(keyword))
