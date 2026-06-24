@@ -1,159 +1,334 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Update lamet hays!</title>
+<title>MOVIE+ Admin Panel</title>
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 
 <style>
-*{box-sizing:border-box}
+*{
+  box-sizing:border-box;
+}
+
 body{
   margin:0;
-  background:#101010;
   font-family:Arial, sans-serif;
+  background:#0b0b0b;
   color:#fff;
 }
-.wrapper{
-  max-width:720px;
-  margin:auto;
-  padding:16px;
+
+.header{
+  padding:30px 35px;
+  background:#111;
+  border-bottom:1px solid #2a2a2a;
 }
-.logoBox{
-  background:#292929;
-  border-radius:4px;
-  padding:55px 20px;
-  text-align:center;
-  margin-bottom:32px;
-}
+
 .logo{
-  font-size:44px;
+  display:flex;
+  align-items:center;
+  gap:18px;
+}
+
+.logo i{
+  font-size:48px;
+  color:#ff2b2b;
+}
+
+.logo span{
+  font-size:42px;
   letter-spacing:22px;
   font-weight:500;
 }
-.logo span{
-  color:#ff3333;
+
+.logo b{
+  color:#ff2b2b;
+  letter-spacing:0;
 }
-.play{
-  color:#ff3333;
-  font-size:52px;
-  vertical-align:middle;
-  margin-right:18px;
+
+.main{
+  display:grid;
+  grid-template-columns:380px 1fr;
+  gap:15px;
+  padding:15px;
 }
-.title{
-  font-size:28px;
-  margin:0 0 24px 16px;
-}
+
 .card{
-  background:#242424;
-  padding:16px;
-  border-radius:4px;
-  margin-bottom:12px;
+  background:linear-gradient(145deg,#202020,#151515);
+  border:1px solid #2b2b2b;
+  border-radius:6px;
+  padding:25px;
+  box-shadow:0 0 18px rgba(0,0,0,.4);
 }
-input,textarea,select{
+
+h2{
+  margin:0;
+  font-size:24px;
+}
+
+.line{
+  width:55px;
+  height:3px;
+  background:#ff2b2b;
+  margin:12px 0 28px;
+}
+
+.desc{
+  color:#aaa;
+  line-height:1.6;
+  margin-bottom:25px;
+}
+
+.inputBox{
+  display:flex;
+  align-items:center;
+  background:#252525;
+  border:1px solid #333;
+  border-radius:7px;
+  margin-bottom:12px;
+  padding:0 15px;
+}
+
+.inputBox i{
+  color:#fff;
+  width:30px;
+  font-size:18px;
+}
+
+input, textarea, select{
   width:100%;
-  background:#242424;
-  border:2px solid #151515;
+  background:#252525;
+  color:#fff;
+  border:1px solid #333;
   border-radius:7px;
   padding:16px;
-  color:white;
-  font-size:16px;
-  margin-bottom:12px;
+  font-size:15px;
   outline:none;
 }
+
+.inputBox input{
+  border:0;
+  padding:16px 10px;
+}
+
 textarea{
-  height:110px;
-  resize:none;
+  height:150px;
+  resize:vertical;
 }
-input::placeholder,textarea::placeholder{
-  color:#777;
+
+label{
+  display:block;
+  margin:20px 0 8px;
+  font-weight:bold;
 }
+
 button{
   width:100%;
-  background:#111;
-  border:none;
-  border-radius:16px;
-  padding:17px;
-  color:white;
+  border:0;
+  border-radius:7px;
+  padding:16px;
   font-size:16px;
-  letter-spacing:3px;
   font-weight:bold;
-  margin-top:8px;
+  color:white;
+  cursor:pointer;
+  margin-top:18px;
 }
-button:active{
-  background:#ff3333;
+
+.btnRed{
+  background:#ff2b2b;
 }
-.redBtn{
-  background:#ff3333;
+
+.btnOutline{
+  background:transparent;
+  border:1px solid #a52222;
+  color:#ff3b3b;
 }
-.logout{
-  background:#333;
+
+.refreshBtn{
+  width:auto;
+  float:right;
+  margin:0;
+  padding:12px 18px;
+  background:#252525;
+  border:1px solid #333;
 }
-small{
+
+.note{
+  margin-top:25px;
+  padding:18px;
+  border:1px solid #333;
+  border-radius:7px;
   color:#aaa;
-  display:block;
-  margin-top:10px;
-  text-align:center;
+  display:flex;
+  gap:15px;
+  line-height:1.5;
 }
-.row{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:12px;
+
+.status{
+  margin-top:25px;
+  padding:18px;
+  border:1px solid #333;
+  border-radius:7px;
+  color:#aaa;
+}
+
+.status b{
+  color:#ff3b3b;
+}
+
+.footer{
+  text-align:center;
+  color:#999;
+  padding:25px;
+}
+
+.footer b{
+  color:#ff2b2b;
+}
+
+#adminBox{
+  display:none;
+}
+
+@media(max-width:800px){
+  .main{
+    grid-template-columns:1fr;
+  }
+
+  .header{
+    padding:25px 20px;
+  }
+
+  .logo span{
+    font-size:32px;
+    letter-spacing:13px;
+  }
+
+  .logo i{
+    font-size:38px;
+  }
 }
 </style>
 </head>
 
 <body>
 
-<div class="wrapper">
+<div class="header">
+  <div class="logo">
+    <i class="fa-solid fa-play"></i>
+    <span>MOVIE<b>+</b></span>
+  </div>
+</div>
 
-  <div class="logoBox">
-    <div class="logo">
-      <span class="play">▶</span>MOVIE<span>+</span>
+<div class="main">
+
+  <div class="card">
+    <h2>Admin Login</h2>
+    <div class="line"></div>
+
+    <p class="desc">Login using your GitHub details to manage version.json</p>
+
+    <div id="loginBox">
+      <div class="inputBox">
+        <i class="fa-solid fa-user"></i>
+        <input id="owner" placeholder="GitHub Username / Name">
+      </div>
+
+      <div class="inputBox">
+        <i class="fa-solid fa-box-archive"></i>
+        <input id="repo" placeholder="Repository Name" value="masterkit">
+      </div>
+
+      <div class="inputBox">
+        <i class="fa-solid fa-code-branch"></i>
+        <input id="branch" placeholder="Branch" value="main">
+      </div>
+
+      <div class="inputBox">
+        <i class="fa-regular fa-file"></i>
+        <input id="filePath" placeholder="JSON File Name" value="version.json">
+      </div>
+
+      <div class="inputBox">
+        <i class="fa-solid fa-lock"></i>
+        <input id="token" type="password" placeholder="Personal Access Token">
+        <i onclick="toggleToken()" class="fa-solid fa-eye" style="cursor:pointer;"></i>
+      </div>
+
+      <button class="btnRed" onclick="saveLogin()">
+        <i class="fa-solid fa-play"></i> &nbsp; LOGIN
+      </button>
+
+      <div class="note">
+        <i class="fa-solid fa-shield-halved"></i>
+        <span>Your token is saved only in this browser using localStorage.</span>
+      </div>
     </div>
+
+    <button id="logoutLeft" class="btnOutline" onclick="logout()" style="display:none;">
+      <i class="fa-solid fa-right-from-bracket"></i> &nbsp; LOGOUT
+    </button>
   </div>
 
-  <h2 class="title">JSON Update Admin</h2>
+  <div class="card">
+    <button class="refreshBtn" onclick="loadJson()">
+      <i class="fa-solid fa-rotate-right"></i> &nbsp; REFRESH
+    </button>
 
-  <div class="card" id="loginBox">
-    <input id="owner" placeholder="GitHub Owner / Username">
-    <input id="repo" placeholder="Repository Name">
+    <h2>JSON Editor</h2>
+    <div class="line"></div>
 
-    <div class="row">
-      <input id="branch" placeholder="Branch" value="main">
-      <input id="filePath" placeholder="JSON Name" value="version.json">
-    </div>
+    <p class="desc">Edit your version.json content and save changes directly to GitHub.</p>
 
-    <input id="token" type="password" placeholder="GitHub Token">
-
-    <button onclick="saveLogin()">LOGIN</button>
-    <small>One-time login. Token will be saved in this browser only.</small>
-  </div>
-
-  <div class="card" id="adminBox" style="display:none;">
-    <div class="row">
+    <div id="adminBox">
+      <label>Version Code</label>
       <input id="version_code" placeholder="Version Code">
+
+      <label>Title</label>
+      <input id="title" placeholder="Title">
+
+      <label>Message</label>
+      <textarea id="message" placeholder="Message"></textarea>
+
+      <label>Update URL</label>
+      <input id="update_url" placeholder="Update URL">
+
+      <label>Force Update</label>
       <select id="force_update">
-        <option value="false">Force: false</option>
-        <option value="true">Force: true</option>
+        <option value="false">false</option>
+        <option value="true">true</option>
       </select>
+
+      <button class="btnRed" onclick="saveJson()">
+        <i class="fa-solid fa-floppy-disk"></i> &nbsp; SAVE CHANGES
+      </button>
+
+      <button class="btnOutline" onclick="logout()">
+        <i class="fa-solid fa-right-from-bracket"></i> &nbsp; LOGOUT
+      </button>
+
+      <div class="status" id="statusText">
+        <i class="fa-regular fa-circle-check"></i>
+        Connected to: <b>none</b>
+      </div>
     </div>
 
-    <input id="title" placeholder="Update Title">
-    <textarea id="message" placeholder="Update Message"></textarea>
-    <input id="update_url" placeholder="Download / Update URL">
-
-    <button onclick="loadJson()">LOAD JSON</button>
-    <button class="redBtn" onclick="saveJson()">SAVE UPDATE</button>
-    <button class="logout" onclick="logout()">LOGOUT / RESET</button>
+    <p id="notLoginText" class="desc">Please login first to edit your JSON file.</p>
   </div>
 
+</div>
+
+<div class="footer">
+  © 2025 MOVIE+ Admin Panel. All rights reserved.<br>
+  <b>❤</b> Designed for Movie+
 </div>
 
 <script>
 let config = {};
 
 window.onload = function(){
-  const saved = localStorage.getItem("movieplus_admin_login");
+  const saved = localStorage.getItem("github_admin_login");
   if(saved){
     config = JSON.parse(saved);
     showAdmin();
@@ -161,13 +336,18 @@ window.onload = function(){
   }
 };
 
+function toggleToken(){
+  const token = document.getElementById("token");
+  token.type = token.type === "password" ? "text" : "password";
+}
+
 function saveLogin(){
   config = {
-    owner: owner.value.trim(),
-    repo: repo.value.trim(),
-    branch: branch.value.trim(),
-    filePath: filePath.value.trim(),
-    token: token.value.trim()
+    owner: document.getElementById("owner").value.trim(),
+    repo: document.getElementById("repo").value.trim(),
+    branch: document.getElementById("branch").value.trim(),
+    filePath: document.getElementById("filePath").value.trim(),
+    token: document.getElementById("token").value.trim()
   };
 
   if(!config.owner || !config.repo || !config.branch || !config.filePath || !config.token){
@@ -175,27 +355,38 @@ function saveLogin(){
     return;
   }
 
-  localStorage.setItem("movieplus_admin_login", JSON.stringify(config));
+  localStorage.setItem("github_admin_login", JSON.stringify(config));
   showAdmin();
   loadJson();
 }
 
 function showAdmin(){
-  loginBox.style.display = "none";
-  adminBox.style.display = "block";
+  document.getElementById("loginBox").style.display = "none";
+  document.getElementById("adminBox").style.display = "block";
+  document.getElementById("notLoginText").style.display = "none";
+  document.getElementById("logoutLeft").style.display = "block";
+
+  document.getElementById("statusText").innerHTML =
+    '<i class="fa-regular fa-circle-check"></i> Connected to: <b>' +
+    config.owner + ' / ' + config.repo + ' (' + config.branch + ') / ' + config.filePath + '</b>';
 }
 
 function logout(){
-  localStorage.removeItem("movieplus_admin_login");
+  localStorage.removeItem("github_admin_login");
   localStorage.removeItem("github_file_sha");
   location.reload();
 }
 
 async function loadJson(){
+  if(!config.token){
+    alert("Login muna.");
+    return;
+  }
+
   try{
     const apiUrl = `https://api.github.com/repos/${config.owner}/${config.repo}/contents/${config.filePath}?ref=${config.branch}`;
 
-    const res = await fetch(apiUrl,{
+    const res = await fetch(apiUrl, {
       headers:{
         "Authorization":"Bearer " + config.token,
         "Accept":"application/vnd.github+json"
@@ -205,23 +396,23 @@ async function loadJson(){
     const file = await res.json();
 
     if(!res.ok){
-      alert("Load Error: " + file.message);
+      alert("Error loading JSON: " + file.message);
       return;
     }
 
-    const jsonText = decodeURIComponent(escape(atob(file.content.replace(/\n/g,""))));
+    const jsonText = decodeURIComponent(escape(atob(file.content.replace(/\n/g, ""))));
     const data = JSON.parse(jsonText);
 
-    version_code.value = data.version_code || "";
-    title.value = data.title || "";
-    message.value = data.message || "";
-    update_url.value = data.update_url || "";
-    force_update.value = String(data.force_update || false);
+    document.getElementById("version_code").value = data.version_code || "";
+    document.getElementById("title").value = data.title || "";
+    document.getElementById("message").value = data.message || "";
+    document.getElementById("update_url").value = data.update_url || "";
+    document.getElementById("force_update").value = String(data.force_update || false);
 
     localStorage.setItem("github_file_sha", file.sha);
 
   }catch(e){
-    alert("Load Failed: " + e.message);
+    alert("Load failed: " + e.message);
   }
 }
 
@@ -230,44 +421,44 @@ async function saveJson(){
     const sha = localStorage.getItem("github_file_sha");
 
     const newJson = {
-      version_code: Number(version_code.value),
-      title: title.value,
-      message: message.value,
-      update_url: update_url.value,
-      force_update: force_update.value === "true"
+      version_code: Number(document.getElementById("version_code").value),
+      title: document.getElementById("title").value,
+      message: document.getElementById("message").value,
+      update_url: document.getElementById("update_url").value,
+      force_update: document.getElementById("force_update").value === "true"
     };
 
     const content = btoa(unescape(encodeURIComponent(JSON.stringify(newJson, null, 2))));
 
     const apiUrl = `https://api.github.com/repos/${config.owner}/${config.repo}/contents/${config.filePath}`;
 
-    const res = await fetch(apiUrl,{
+    const res = await fetch(apiUrl, {
       method:"PUT",
       headers:{
         "Authorization":"Bearer " + config.token,
         "Accept":"application/vnd.github+json",
         "Content-Type":"application/json"
       },
-      body:JSON.stringify({
-        message:"Update version.json",
-        content:content,
-        sha:sha,
-        branch:config.branch
+      body: JSON.stringify({
+        message: "Update version.json from admin panel",
+        content: content,
+        sha: sha,
+        branch: config.branch
       })
     });
 
     const result = await res.json();
 
     if(!res.ok){
-      alert("Save Error: " + result.message);
+      alert("Save error: " + result.message);
       return;
     }
 
     localStorage.setItem("github_file_sha", result.content.sha);
-    alert("JSON Updated Successfully!");
+    alert("JSON updated successfully!");
 
   }catch(e){
-    alert("Save Failed: " + e.message);
+    alert("Save failed: " + e.message);
   }
 }
 </script>
