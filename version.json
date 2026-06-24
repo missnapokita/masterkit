@@ -1,7 +1,7 @@
 {
-  "version_code": 5,
+  "version_code": 7,
   "title": "New Update Available",
   "message": "May bagong features at mas mabilis na app!",
-  "update_url": "https://yourwebsite.com/app.apk",
+  "update_url": "https://play.google.com/store/apps/details?id=com.bidamax",
   "force_update": false
 }
