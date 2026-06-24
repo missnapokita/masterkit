@@ -1,548 +1,209 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JsonHub Editor</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+<title>JSON Update Admin</title>
 
 <style>
-
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Poppins,sans-serif;
-}
-
 body{
-background:#0f0f0f;
-color:white;
-padding:20px;
+  margin:0;
+  font-family:Arial;
+  background:linear-gradient(135deg,#090000,#210000,#000);
+  color:white;
+  padding:20px;
 }
-
-.card{
-background:#1a1a1a;
-border:1px solid #2a2a2a;
-border-radius:24px;
-padding:18px;
-margin-bottom:15px;
+.box{
+  max-width:430px;
+  margin:auto;
+  background:#160505;
+  border:1px solid #8b0000;
+  border-radius:20px;
+  padding:20px;
+  box-shadow:0 0 25px #5c0000;
 }
-
-input, textarea{
-width:100%;
-background:#111;
-border:1px solid #333;
-color:white;
-padding:14px;
-border-radius:16px;
-outline:none;
-font-size:14px;
-margin-top:10px;
+h2{text-align:center;color:#ff3b3b}
+input,textarea,select{
+  width:100%;
+  box-sizing:border-box;
+  margin:8px 0;
+  padding:13px;
+  border-radius:12px;
+  border:1px solid #700;
+  background:#260000;
+  color:white;
+  outline:none;
 }
-
-textarea{
-height:140px;
-resize:none;
-}
-
+textarea{height:100px}
 button{
-border:none;
-outline:none;
-background:white;
-color:black;
-padding:13px 18px;
-border-radius:16px;
-font-weight:600;
-margin-top:12px;
-cursor:pointer;
+  width:100%;
+  padding:14px;
+  margin-top:10px;
+  border:0;
+  border-radius:12px;
+  background:#d00000;
+  color:white;
+  font-weight:bold;
 }
-
-.row{
-display:flex;
-gap:10px;
-flex-wrap:wrap;
-}
-
-.action{
-flex:1;
-min-width:100px;
-}
-
-.item{
-background:#151515;
-border:1px solid #2d2d2d;
-padding:15px;
-border-radius:20px;
-margin-top:12px;
-}
-
-.item-title{
-font-size:17px;
-font-weight:600;
-margin-bottom:8px;
-}
-
-.status{
-margin-top:10px;
-font-size:13px;
-color:#bdbdbd;
-}
-
-.fab{
-position:fixed;
-right:20px;
-bottom:20px;
-width:65px;
-height:65px;
-border-radius:100%;
-font-size:28px;
-background:white;
-color:black;
-display:flex;
-align-items:center;
-justify-content:center;
-cursor:pointer;
-}
-
+button:hover{background:#ff1a1a}
+.logout{background:#333}
+small{color:#ffb3b3}
 </style>
 </head>
+
 <body>
 
-<div class="card">
+<div class="box">
+  <h2>MasterKit JSON Admin</h2>
 
-<div>GitHub Token</div>
-<input type="password" id="token">
+  <div id="loginBox">
+    <input id="owner" placeholder="GitHub Username / Owner">
+    <input id="repo" placeholder="Repo name">
+    <input id="branch" placeholder="Branch" value="main">
+    <input id="filePath" placeholder="JSON file name" value="version.json">
+    <input id="token" type="password" placeholder="GitHub Token">
 
-<div style="margin-top:15px;">GitHub Username</div>
-<input type="text" id="owner">
+    <button onclick="saveLogin()">SAVE LOGIN</button>
+    <small>Token is saved only in this browser using localStorage.</small>
+  </div>
 
-<div style="margin-top:15px;">Repository</div>
-<input type="text" id="repo">
+  <div id="adminBox" style="display:none;">
+    <input id="version_code" placeholder="Version Code">
+    <input id="title" placeholder="Title">
+    <textarea id="message" placeholder="Message"></textarea>
+    <input id="update_url" placeholder="Update URL">
 
-<div style="margin-top:15px;">JSON File Path</div>
-<input type="text" id="path" value="data.json">
+    <select id="force_update">
+      <option value="false">Force Update: false</option>
+      <option value="true">Force Update: true</option>
+    </select>
 
-<button onclick="loadJson()">Load JSON</button>
-
-<div class="status" id="status">
-✓ All Changes Saved
-</div>
-
-<div class="status" id="changes">
-No Pending Changes
-</div>
-
-</div>
-
-<div class="card">
-
-<div>Raw JSON Editor</div>
-
-<textarea id="editor"></textarea>
-
-<div class="row">
-
-<button class="action" onclick="formatJson()">
-Format
-</button>
-
-<button class="action" onclick="saveDraft()">
-Save Draft
-</button>
-
-<button class="action" onclick="commitChanges()">
-Commit Changes
-</button>
-
-</div>
-
-</div>
-
-<div class="card">
-
-<div style="font-size:18px;font-weight:600;">
-Preview Items
-</div>
-
-<input
-type="text"
-id="search"
-placeholder="Search items..."
-oninput="renderItems()"
->
-
-<div id="list"></div>
-
-</div>
-
-<div class="fab" onclick="addItem()">
-+
+    <button onclick="loadJson()">LOAD JSON</button>
+    <button onclick="saveJson()">SAVE UPDATE</button>
+    <button class="logout" onclick="logout()">LOGOUT / RESET TOKEN</button>
+  </div>
 </div>
 
 <script>
+let config = {};
 
-let sha = "";
+window.onload = function(){
+  const saved = localStorage.getItem("github_admin_login");
+  if(saved){
+    config = JSON.parse(saved);
+    showAdmin();
+    loadJson();
+  }
+};
 
-function setStatus(text){
-document.getElementById("status").innerText = text;
+function saveLogin(){
+  config = {
+    owner: document.getElementById("owner").value.trim(),
+    repo: document.getElementById("repo").value.trim(),
+    branch: document.getElementById("branch").value.trim(),
+    filePath: document.getElementById("filePath").value.trim(),
+    token: document.getElementById("token").value.trim()
+  };
+
+  if(!config.owner || !config.repo || !config.branch || !config.filePath || !config.token){
+    alert("Pakilagyan lahat ng fields.");
+    return;
+  }
+
+  localStorage.setItem("github_admin_login", JSON.stringify(config));
+  showAdmin();
+  loadJson();
 }
 
-function setChanges(state){
-
-const changes = document.getElementById("changes");
-
-if(state){
-changes.innerText = "● Unsaved Changes";
-changes.style.color = "#ff9800";
-}else{
-changes.innerText = "✓ All Changes Saved";
-changes.style.color = "#4caf50";
+function showAdmin(){
+  document.getElementById("loginBox").style.display = "none";
+  document.getElementById("adminBox").style.display = "block";
 }
 
-}
-
-function getApi(){
-
-const owner = document.getElementById("owner").value;
-const repo = document.getElementById("repo").value;
-const path = document.getElementById("path").value;
-
-return `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
-
+function logout(){
+  localStorage.removeItem("github_admin_login");
+  location.reload();
 }
 
 async function loadJson(){
+  try{
+    const apiUrl = `https://api.github.com/repos/${config.owner}/${config.repo}/contents/${config.filePath}?ref=${config.branch}`;
 
-try{
+    const res = await fetch(apiUrl, {
+      headers:{
+        "Authorization":"Bearer " + config.token,
+        "Accept":"application/vnd.github+json"
+      }
+    });
 
-setStatus("Loading JSON...");
+    const file = await res.json();
 
-const token = document.getElementById("token").value;
+    if(!res.ok){
+      alert("Error loading JSON: " + file.message);
+      return;
+    }
 
-const response = await fetch(getApi(),{
-headers:{
-Authorization:`token ${token}`
-}
-});
+    const jsonText = atob(file.content.replace(/\n/g, ""));
+    const data = JSON.parse(jsonText);
 
-const data = await response.json();
+    document.getElementById("version_code").value = data.version_code || "";
+    document.getElementById("title").value = data.title || "";
+    document.getElementById("message").value = data.message || "";
+    document.getElementById("update_url").value = data.update_url || "";
+    document.getElementById("force_update").value = String(data.force_update || false);
 
-sha = data.sha;
+    localStorage.setItem("github_file_sha", file.sha);
 
-const decoded = atob(data.content.replace(/\n/g,""));
-
-document.getElementById("editor").value = decoded;
-
-renderItems();
-
-setStatus("JSON Loaded Successfully");
-
-}catch(e){
-
-setStatus("Error Loading JSON");
-console.log(e);
-
-}
-
-}
-
-function saveDraft(){
-
-localStorage.setItem(
-"json_draft",
-document.getElementById("editor").value
-);
-
-setStatus("Draft Saved");
-setChanges(true);
-
+  }catch(e){
+    alert("Load failed: " + e.message);
+  }
 }
 
-async function commitChanges(){
+async function saveJson(){
+  try{
+    const sha = localStorage.getItem("github_file_sha");
 
-try{
+    const newJson = {
+      version_code: Number(document.getElementById("version_code").value),
+      title: document.getElementById("title").value,
+      message: document.getElementById("message").value,
+      update_url: document.getElementById("update_url").value,
+      force_update: document.getElementById("force_update").value === "true"
+    };
 
-setStatus("Saving JSON...");
+    const content = btoa(unescape(encodeURIComponent(JSON.stringify(newJson, null, 2))));
 
-const token = document.getElementById("token").value;
+    const apiUrl = `https://api.github.com/repos/${config.owner}/${config.repo}/contents/${config.filePath}`;
 
-const content =
-document.getElementById("editor").value;
+    const res = await fetch(apiUrl, {
+      method:"PUT",
+      headers:{
+        "Authorization":"Bearer " + config.token,
+        "Accept":"application/vnd.github+json",
+        "Content-Type":"application/json"
+      },
+      body: JSON.stringify({
+        message: "Update version.json from admin panel",
+        content: content,
+        sha: sha,
+        branch: config.branch
+      })
+    });
 
-const response = await fetch(getApi(),{
+    const result = await res.json();
 
-method:"PUT",
+    if(!res.ok){
+      alert("Save error: " + result.message);
+      return;
+    }
 
-headers:{
-Authorization:`token ${token}`,
-"Content-Type":"application/json"
-},
+    localStorage.setItem("github_file_sha", result.content.sha);
+    alert("JSON updated successfully!");
 
-body:JSON.stringify({
-message:"Updated JSON",
-content:btoa(unescape(encodeURIComponent(content))),
-sha:sha
-})
-
-});
-
-const data = await response.json();
-
-sha = data.content.sha;
-
-setStatus("Changes Committed");
-setChanges(false);
-
-}catch(e){
-
-setStatus("Save Failed");
-console.log(e);
-
+  }catch(e){
+    alert("Save failed: " + e.message);
+  }
 }
-
-}
-
-function formatJson(){
-
-try{
-
-const editor = document.getElementById("editor");
-
-const obj = JSON.parse(editor.value);
-
-editor.value = JSON.stringify(obj,null,2);
-
-renderItems();
-
-}catch(e){
-
-alert("Invalid JSON");
-
-}
-
-}
-
-function renderItems(){
-
-const list = document.getElementById("list");
-
-list.innerHTML = "";
-
-try{
-
-const arr =
-JSON.parse(document.getElementById("editor").value);
-
-const keyword =
-document.getElementById("search").value.toLowerCase();
-
-arr.forEach((item,index)=>{
-    
-if(
-keyword &&
-!(JSON.stringify(item).toLowerCase().includes(keyword))
-) return;
-
-const div = document.createElement("div");
-
-div.className = "item";
-
-const title =
-item.hero ||
-item.hero_name ||
-item.name ||
-item.title ||
-`Item ${index+1}`;
-
-const image =
-item.image ||
-item.image_url ||
-"https://via.placeholder.com/70";
-
-const subtitle =
-item.upgradable_skin ||
-item.skin_name ||
-item.description ||
-item.id ||
-"No Description";
-
-div.innerHTML = `
-
-<div style="display:flex;align-items:center;gap:14px;">
-
-<img
-src="${image}"
-onerror="this.src='https://via.placeholder.com/70';"
-style="
-width:70px;
-height:70px;
-border-radius:18px;
-object-fit:cover;
-border:1px solid #333;
-">
-
-<div>
-
-<div class="item-title">
-${title}
-</div>
-
-<div style="color:#bdbdbd;font-size:13px;">
-${subtitle}
-</div>
-
-</div>
-
-</div>
-
-<div class="row">
-
-<button class="action" onclick="editItem(${index})">
-Edit
-</button>
-
-<button class="action" onclick="duplicateItem(${index})">
-Duplicate
-</button>
-
-<button class="action" onclick="deleteItem(${index})">
-Delete
-</button>
-
-</div>
-
-`;
-
-list.appendChild(div);
-
-});
-
-}catch(e){
-
-console.log(e);
-
-}
-
-}
-
-function duplicateItem(index){
-
-try{
-
-const arr =
-JSON.parse(document.getElementById("editor").value);
-
-const copy =
-JSON.parse(JSON.stringify(arr[index]));
-
-arr.splice(index+1,0,copy);
-
-document.getElementById("editor").value =
-JSON.stringify(arr,null,2);
-
-renderItems();
-
-setChanges(true);
-
-}catch(e){
-
-console.log(e);
-
-}
-
-}
-
-function editItem(index){
-
-try{
-
-const arr =
-JSON.parse(document.getElementById("editor").value);
-
-const itemText =
-JSON.stringify(arr[index],null,2);
-
-const edited = prompt(
-"Edit JSON Item",
-itemText
-);
-
-if(edited === null) return;
-
-arr[index] = JSON.parse(edited);
-
-document.getElementById("editor").value =
-JSON.stringify(arr,null,2);
-
-renderItems();
-
-setChanges(true);
-
-setStatus("Item Updated");
-
-}catch(e){
-
-alert("Invalid JSON");
-
-}
-
-}
-
-function deleteItem(index){
-
-try{
-
-const arr =
-JSON.parse(document.getElementById("editor").value);
-
-arr.splice(index,1);
-
-document.getElementById("editor").value =
-JSON.stringify(arr,null,2);
-
-renderItems();
-
-setChanges(true);
-
-}catch(e){
-
-console.log(e);
-
-}
-
-}
-
-function addItem(){
-
-try{
-
-const arr =
-JSON.parse(document.getElementById("editor").value || "[]");
-
-arr.push({
-hero:"New Hero",
-upgradable_skin:"New Skin",
-image:"",
-script:""
-});
-
-document.getElementById("editor").value =
-JSON.stringify(arr,null,2);
-
-renderItems();
-
-setChanges(true);
-
-}catch(e){
-
-console.log(e);
-
-}
-
-}
-
 </script>
 
 </body>
