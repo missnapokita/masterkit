@@ -3,92 +3,157 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JSON Update Admin</title>
+<title>Movie+ JSON Admin</title>
 
 <style>
+*{box-sizing:border-box}
 body{
   margin:0;
-  font-family:Arial;
-  background:linear-gradient(135deg,#090000,#210000,#000);
-  color:white;
-  padding:20px;
+  background:#101010;
+  font-family:Arial, sans-serif;
+  color:#fff;
 }
-.box{
-  max-width:430px;
+.wrapper{
+  max-width:720px;
   margin:auto;
-  background:#160505;
-  border:1px solid #8b0000;
-  border-radius:20px;
-  padding:20px;
-  box-shadow:0 0 25px #5c0000;
+  padding:16px;
 }
-h2{text-align:center;color:#ff3b3b}
+.logoBox{
+  background:#292929;
+  border-radius:4px;
+  padding:55px 20px;
+  text-align:center;
+  margin-bottom:32px;
+}
+.logo{
+  font-size:44px;
+  letter-spacing:22px;
+  font-weight:500;
+}
+.logo span{
+  color:#ff3333;
+}
+.play{
+  color:#ff3333;
+  font-size:52px;
+  vertical-align:middle;
+  margin-right:18px;
+}
+.title{
+  font-size:28px;
+  margin:0 0 24px 16px;
+}
+.card{
+  background:#242424;
+  padding:16px;
+  border-radius:4px;
+  margin-bottom:12px;
+}
 input,textarea,select{
   width:100%;
-  box-sizing:border-box;
-  margin:8px 0;
-  padding:13px;
-  border-radius:12px;
-  border:1px solid #700;
-  background:#260000;
+  background:#242424;
+  border:2px solid #151515;
+  border-radius:7px;
+  padding:16px;
   color:white;
+  font-size:16px;
+  margin-bottom:12px;
   outline:none;
 }
-textarea{height:100px}
+textarea{
+  height:110px;
+  resize:none;
+}
+input::placeholder,textarea::placeholder{
+  color:#777;
+}
 button{
   width:100%;
-  padding:14px;
-  margin-top:10px;
-  border:0;
-  border-radius:12px;
-  background:#d00000;
+  background:#111;
+  border:none;
+  border-radius:16px;
+  padding:17px;
   color:white;
+  font-size:16px;
+  letter-spacing:3px;
   font-weight:bold;
+  margin-top:8px;
 }
-button:hover{background:#ff1a1a}
-.logout{background:#333}
-small{color:#ffb3b3}
+button:active{
+  background:#ff3333;
+}
+.redBtn{
+  background:#ff3333;
+}
+.logout{
+  background:#333;
+}
+small{
+  color:#aaa;
+  display:block;
+  margin-top:10px;
+  text-align:center;
+}
+.row{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
 </style>
 </head>
 
 <body>
 
-<div class="box">
-  <h2>MasterKit JSON Admin</h2>
+<div class="wrapper">
 
-  <div id="loginBox">
-    <input id="owner" placeholder="GitHub Username / Owner">
-    <input id="repo" placeholder="Repo name">
-    <input id="branch" placeholder="Branch" value="main">
-    <input id="filePath" placeholder="JSON file name" value="version.json">
+  <div class="logoBox">
+    <div class="logo">
+      <span class="play">▶</span>MOVIE<span>+</span>
+    </div>
+  </div>
+
+  <h2 class="title">JSON Update Admin</h2>
+
+  <div class="card" id="loginBox">
+    <input id="owner" placeholder="GitHub Owner / Username">
+    <input id="repo" placeholder="Repository Name">
+
+    <div class="row">
+      <input id="branch" placeholder="Branch" value="main">
+      <input id="filePath" placeholder="JSON Name" value="version.json">
+    </div>
+
     <input id="token" type="password" placeholder="GitHub Token">
 
-    <button onclick="saveLogin()">SAVE LOGIN</button>
-    <small>Token is saved only in this browser using localStorage.</small>
+    <button onclick="saveLogin()">LOGIN</button>
+    <small>One-time login. Token will be saved in this browser only.</small>
   </div>
 
-  <div id="adminBox" style="display:none;">
-    <input id="version_code" placeholder="Version Code">
-    <input id="title" placeholder="Title">
-    <textarea id="message" placeholder="Message"></textarea>
-    <input id="update_url" placeholder="Update URL">
+  <div class="card" id="adminBox" style="display:none;">
+    <div class="row">
+      <input id="version_code" placeholder="Version Code">
+      <select id="force_update">
+        <option value="false">Force: false</option>
+        <option value="true">Force: true</option>
+      </select>
+    </div>
 
-    <select id="force_update">
-      <option value="false">Force Update: false</option>
-      <option value="true">Force Update: true</option>
-    </select>
+    <input id="title" placeholder="Update Title">
+    <textarea id="message" placeholder="Update Message"></textarea>
+    <input id="update_url" placeholder="Download / Update URL">
 
     <button onclick="loadJson()">LOAD JSON</button>
-    <button onclick="saveJson()">SAVE UPDATE</button>
-    <button class="logout" onclick="logout()">LOGOUT / RESET TOKEN</button>
+    <button class="redBtn" onclick="saveJson()">SAVE UPDATE</button>
+    <button class="logout" onclick="logout()">LOGOUT / RESET</button>
   </div>
+
 </div>
 
 <script>
 let config = {};
 
 window.onload = function(){
-  const saved = localStorage.getItem("github_admin_login");
+  const saved = localStorage.getItem("movieplus_admin_login");
   if(saved){
     config = JSON.parse(saved);
     showAdmin();
@@ -98,11 +163,11 @@ window.onload = function(){
 
 function saveLogin(){
   config = {
-    owner: document.getElementById("owner").value.trim(),
-    repo: document.getElementById("repo").value.trim(),
-    branch: document.getElementById("branch").value.trim(),
-    filePath: document.getElementById("filePath").value.trim(),
-    token: document.getElementById("token").value.trim()
+    owner: owner.value.trim(),
+    repo: repo.value.trim(),
+    branch: branch.value.trim(),
+    filePath: filePath.value.trim(),
+    token: token.value.trim()
   };
 
   if(!config.owner || !config.repo || !config.branch || !config.filePath || !config.token){
@@ -110,18 +175,19 @@ function saveLogin(){
     return;
   }
 
-  localStorage.setItem("github_admin_login", JSON.stringify(config));
+  localStorage.setItem("movieplus_admin_login", JSON.stringify(config));
   showAdmin();
   loadJson();
 }
 
 function showAdmin(){
-  document.getElementById("loginBox").style.display = "none";
-  document.getElementById("adminBox").style.display = "block";
+  loginBox.style.display = "none";
+  adminBox.style.display = "block";
 }
 
 function logout(){
-  localStorage.removeItem("github_admin_login");
+  localStorage.removeItem("movieplus_admin_login");
+  localStorage.removeItem("github_file_sha");
   location.reload();
 }
 
@@ -129,7 +195,7 @@ async function loadJson(){
   try{
     const apiUrl = `https://api.github.com/repos/${config.owner}/${config.repo}/contents/${config.filePath}?ref=${config.branch}`;
 
-    const res = await fetch(apiUrl, {
+    const res = await fetch(apiUrl,{
       headers:{
         "Authorization":"Bearer " + config.token,
         "Accept":"application/vnd.github+json"
@@ -139,23 +205,23 @@ async function loadJson(){
     const file = await res.json();
 
     if(!res.ok){
-      alert("Error loading JSON: " + file.message);
+      alert("Load Error: " + file.message);
       return;
     }
 
-    const jsonText = atob(file.content.replace(/\n/g, ""));
+    const jsonText = decodeURIComponent(escape(atob(file.content.replace(/\n/g,""))));
     const data = JSON.parse(jsonText);
 
-    document.getElementById("version_code").value = data.version_code || "";
-    document.getElementById("title").value = data.title || "";
-    document.getElementById("message").value = data.message || "";
-    document.getElementById("update_url").value = data.update_url || "";
-    document.getElementById("force_update").value = String(data.force_update || false);
+    version_code.value = data.version_code || "";
+    title.value = data.title || "";
+    message.value = data.message || "";
+    update_url.value = data.update_url || "";
+    force_update.value = String(data.force_update || false);
 
     localStorage.setItem("github_file_sha", file.sha);
 
   }catch(e){
-    alert("Load failed: " + e.message);
+    alert("Load Failed: " + e.message);
   }
 }
 
@@ -164,44 +230,44 @@ async function saveJson(){
     const sha = localStorage.getItem("github_file_sha");
 
     const newJson = {
-      version_code: Number(document.getElementById("version_code").value),
-      title: document.getElementById("title").value,
-      message: document.getElementById("message").value,
-      update_url: document.getElementById("update_url").value,
-      force_update: document.getElementById("force_update").value === "true"
+      version_code: Number(version_code.value),
+      title: title.value,
+      message: message.value,
+      update_url: update_url.value,
+      force_update: force_update.value === "true"
     };
 
     const content = btoa(unescape(encodeURIComponent(JSON.stringify(newJson, null, 2))));
 
     const apiUrl = `https://api.github.com/repos/${config.owner}/${config.repo}/contents/${config.filePath}`;
 
-    const res = await fetch(apiUrl, {
+    const res = await fetch(apiUrl,{
       method:"PUT",
       headers:{
         "Authorization":"Bearer " + config.token,
         "Accept":"application/vnd.github+json",
         "Content-Type":"application/json"
       },
-      body: JSON.stringify({
-        message: "Update version.json from admin panel",
-        content: content,
-        sha: sha,
-        branch: config.branch
+      body:JSON.stringify({
+        message:"Update version.json",
+        content:content,
+        sha:sha,
+        branch:config.branch
       })
     });
 
     const result = await res.json();
 
     if(!res.ok){
-      alert("Save error: " + result.message);
+      alert("Save Error: " + result.message);
       return;
     }
 
     localStorage.setItem("github_file_sha", result.content.sha);
-    alert("JSON updated successfully!");
+    alert("JSON Updated Successfully!");
 
   }catch(e){
-    alert("Save failed: " + e.message);
+    alert("Save Failed: " + e.message);
   }
 }
 </script>
