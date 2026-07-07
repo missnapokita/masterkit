@@ -1,7 +1,7 @@
 {
-  "version_code": 8,
-  "title": "New Update Available",
-  "message": "May bagong features at mas mabilis na app!",
+  "version_code": 14,
+  "title": "New Update Available!",
+  "message": "✅ Mga Naayos at Improvements\n\n- Mas mabilis na pag-load ng movies at series.\n\n- Pinahusay ang video playback para sa mas stable na streaming.\n\n- Inayos ang iba't ibang playback issue.\n\n- Mas maayos na pag-detect ng available video quality.\n\n- Pinahusay ang overall app performance at responsiveness.\n\n- Inayos ang ilang UI bugs para sa mas magandang user experience.\n\n- Mas stable na pag-fetch ng latest content mula sa server.\n\n- Naayos ang iba't ibang crashes at minor bugs na na-report ng users.\n\n- Pinahusay ang compatibility sa mas maraming Android devices.\n\nPatuloy Pang Pinapaganda\n\nPatuloy naming ina-update ang BIDAMAX upang makapagbigay ng mas mabilis, mas stable, at mas magandang streaming experience. Maraming salamat sa inyong feedback at suporta!\n\nEnjoy watching with BIDAMAX!",
   "update_url": "https://play.google.com/store/apps/details?id=com.bidamax",
   "force_update": false
 }
