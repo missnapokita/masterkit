@@ -1,10 +1,10 @@
 {
-  "Visibility": "Gone",
-  "Title": "Update Uncle Bads Tools?",
-  "Description": "Uncle Bads Tools recommends that you update to the latest version to use the new skins added and other skin fixes. You can keep using the app while the update is downloading.",
+  "Visibility": "VISIBLE",
+  "Title": "Update Masterkit GFX?",
+  "Description": "Masterkit GFX recommends that you update to the latest version to use the new skins added and other skin fixes. You can keep using the app while the update is downloading.",
   "MainTextButton": "UPDATE",
   "Cancelable": "true",
   "CancelButtonText": "NO THANKS",
-  "DownloadLink": "https://play.google.com/store/apps/details?id=com.apatcher2024.ph",
+  "DownloadLink": "https://play.google.com/store/apps/details?id=com.iandev.masterkit",
   "Version": "6"
 }
